@@ -2,7 +2,9 @@
 
 ## GitHub Actions: ejecutar `seed.py` desde la nube
 
-Si tu red local bloquea salidas TCP al puerto 5432, puedes ejecutar la semilla desde GitHub Actions para poblar la base de datos.
+Si tu red local bloquea salidas TCP al puerto 5432, puedes intentar ejecutar la semilla desde GitHub Actions para poblar la base de datos.
+
+Si el workflow falla por timeout de conexión, usa el fallback `seed.sql` en el SQL editor de Supabase.
 
 Pasos:
 
