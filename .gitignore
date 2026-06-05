@@ -1,0 +1,47 @@
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.venv/
+.env
+.env.*
+/.vscode/
+node_modules/
+frontend/.next/
+frontend/node_modules/
+dist/
+*.log
+uploads/# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Entorno
+.env
+*.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Uploads locales
+app/static/img/uploads/*
+!app/static/img/uploads/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Alembic
+alembic/versions/*.pyc
