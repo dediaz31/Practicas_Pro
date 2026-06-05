@@ -1,0 +1,72 @@
+{% extends "partials/base.html" %}
+{% block title %}Vacantes — PrácticasPro{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-4">
+  <h4 class="fw-bold mb-0"><i class="bi bi-briefcase text-primary"></i> Vacantes</h4>
+  <a href="/vacantes/nueva/form" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Nueva</a>
+</div>
+
+<div class="card p-3 mb-4">
+  <form method="get" class="row g-2 align-items-end">
+    <div class="col-md-5">
+      <input type="search" name="busqueda" value="{{ busqueda }}" class="form-control"
+             placeholder="Buscar título, descripción, requisitos..." />
+    </div>
+    <div class="col-md-2">
+      <select name="modalidad" class="form-select">
+        <option value="">Modalidad</option>
+        {% for m in modalidades %}<option value="{{ m }}" {{ 'selected' if modalidad_filtro == m else '' }}>{{ m }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <select name="empresa_id" class="form-select">
+        <option value="">Todas las empresas</option>
+        {% for e in empresas %}<option value="{{ e.id }}" {{ 'selected' if empresa_filtro == e.id else '' }}>{{ e.nombre }}</option>{% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2 d-flex gap-1">
+      <button type="submit" class="btn btn-primary flex-fill">Filtrar</button>
+      <a href="/vacantes/" class="btn btn-outline-secondary">✕</a>
+    </div>
+  </form>
+</div>
+
+<div class="row g-3">
+  {% for v in vacantes %}
+  <div class="col-md-6 col-lg-4">
+    <div class="card h-100">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <span class="badge bg-{{ 'primary' if v.modalidad.value=='Presencial' else 'success' if v.modalidad.value=='Remoto' else 'warning text-dark' }}">
+            {{ v.modalidad.value }}
+          </span>
+          <small class="text-muted">{{ v.duracion_meses }} meses</small>
+        </div>
+        <h6 class="fw-bold mb-1">{{ v.titulo }}</h6>
+        <p class="text-muted small mb-2">
+          {% if v.empresa %}
+          <i class="bi bi-building"></i> {{ v.empresa.nombre }} · {{ v.empresa.ciudad }}
+          {% endif %}
+        </p>
+        <p class="small text-truncate" style="max-height:3rem;overflow:hidden">{{ v.descripcion }}</p>
+        {% if v.salario %}
+        <div class="fw-semibold text-success small">💰 ${{ "{:,.0f}".format(v.salario) }} / mes</div>
+        {% endif %}
+        <div class="text-muted small mt-1">👥 {{ v.cupos }} cupo(s) disponible(s)</div>
+      </div>
+      <div class="card-footer bg-transparent d-flex gap-1">
+        <a href="/vacantes/{{ v.id }}" class="btn btn-sm btn-primary flex-fill">Ver detalle</a>
+        <a href="/postulaciones/nueva/form?vacante_id={{ v.id }}" class="btn btn-sm btn-outline-success"><i class="bi bi-send"></i></a>
+        <a href="/vacantes/{{ v.id }}/editar" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12 text-center text-muted py-5">
+    <i class="bi bi-briefcase fs-1 d-block mb-2"></i>
+    No hay vacantes. <a href="/vacantes/nueva/form">Crea la primera</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

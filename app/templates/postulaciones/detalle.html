@@ -1,0 +1,92 @@
+{% extends "partials/base.html" %}
+{% block title %}Postulación #{{ postulacion.id }} — PrácticasPro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-1"><li class="breadcrumb-item"><a href="/postulaciones/">Postulaciones</a></li>
+    <li class="breadcrumb-item active">#{{ postulacion.id }}</li></ol>
+  </nav>
+  <form method="post" action="/postulaciones/{{ postulacion.id }}/eliminar"
+        onsubmit="return confirm('¿Eliminar esta postulación?')">
+    <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i> Eliminar</button>
+  </form>
+</div>
+
+<div class="row g-3">
+  <!-- Info principal -->
+  <div class="col-md-8">
+    <div class="card p-4 mb-3">
+      {% set ec = {'Pendiente':'secondary','En Revisión':'info','Entrevista':'warning','Aceptado':'success','Rechazado':'danger'} %}
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <h5 class="fw-bold mb-0">Postulación #{{ postulacion.id }}</h5>
+        <span class="badge bg-{{ ec.get(postulacion.estado.value, 'secondary') }} fs-6">
+          {{ postulacion.estado.value }}
+        </span>
+      </div>
+
+      <div class="row g-2 mb-3">
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3">
+            <div class="small text-muted mb-1">Estudiante</div>
+            {% if postulacion.estudiante %}
+            <div class="fw-semibold">{{ postulacion.estudiante.nombre }}</div>
+            <div class="text-muted small">{{ postulacion.estudiante.correo }}</div>
+            <div class="small">Semestre {{ postulacion.estudiante.semestre }}</div>
+            {% if postulacion.estudiante.hoja_vida %}
+            <a href="{{ postulacion.estudiante.hoja_vida }}" target="_blank" class="btn btn-sm btn-outline-success mt-2">
+              <i class="bi bi-file-pdf"></i> Ver HV
+            </a>
+            {% endif %}
+            {% endif %}
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="p-3 bg-light rounded-3">
+            <div class="small text-muted mb-1">Vacante</div>
+            {% if postulacion.vacante %}
+            <div class="fw-semibold">{{ postulacion.vacante.titulo }}</div>
+            <div class="small text-muted">{{ postulacion.vacante.empresa.nombre if postulacion.vacante.empresa else '' }}</div>
+            <div class="small">{{ postulacion.vacante.modalidad.value }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      {% if postulacion.carta_motivacion %}
+      <h6 class="fw-bold">Carta de motivación</h6>
+      <p class="bg-light p-3 rounded-3">{{ postulacion.carta_motivacion }}</p>
+      {% endif %}
+
+      <div class="text-muted small">
+        📅 Postulado el {{ postulacion.fecha_postulacion.strftime('%d de %B de %Y a las %H:%M') }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Gestión de estado -->
+  <div class="col-md-4">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">Gestionar Estado</h6>
+      <form method="post" action="/postulaciones/{{ postulacion.id }}/estado">
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Estado actual</label>
+          <select name="estado" class="form-select">
+            {% for e in estados %}
+            <option value="{{ e }}" {{ 'selected' if postulacion.estado.value == e else '' }}>{{ e }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label small fw-semibold">Notas del evaluador</label>
+          <textarea name="notas_evaluador" class="form-control" rows="4"
+                    placeholder="Observaciones, feedback, próximos pasos...">{{ postulacion.notas_evaluador or '' }}</textarea>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-check-circle"></i> Actualizar Estado
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,156 @@
+{% extends "partials/base.html" %}
+{% block title %}{{ 'Editar' if accion == 'editar' else 'Nuevo' }} Estudiante — PrácticasPro{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/estudiantes/">Estudiantes</a></li>
+      <li class="breadcrumb-item active">{{ 'Editar' if accion == 'editar' else 'Nuevo' }}</li>
+    </ol>
+  </nav>
+  <h4 class="fw-bold mb-0">
+    {{ 'Editar Estudiante' if accion == 'editar' else 'Registrar Nuevo Estudiante' }}
+  </h4>
+</div>
+
+{% if errores %}
+<div class="alert alert-danger">
+  <i class="bi bi-exclamation-triangle"></i> <strong>Errores:</strong>
+  <ul class="mb-0 mt-1">{% for e in errores %}<li>{{ e }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-body p-4">
+    <form method="post"
+          action="{{ '/estudiantes/' + estudiante.id|string + '/editar' if accion == 'editar' else '/estudiantes/nuevo' }}"
+          enctype="multipart/form-data" novalidate id="formEstudiante">
+
+      <div class="row g-3">
+        <!-- Nombre -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Nombre completo <span class="text-danger">*</span></label>
+          <input type="text" name="nombre" class="form-control" required minlength="3" maxlength="100"
+                 value="{{ estudiante.nombre if estudiante else (form_data.nombre if form_data else '') }}"
+                 placeholder="Ej: María Camila Torres" />
+          <div class="invalid-feedback">Ingresa el nombre completo (mín. 3 caracteres)</div>
+        </div>
+
+        <!-- Correo -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Correo electrónico <span class="text-danger">*</span></label>
+          <input type="email" name="correo" class="form-control" required
+                 value="{{ estudiante.correo if estudiante else (form_data.correo if form_data else '') }}"
+                 placeholder="correo@ucatolica.edu.co"
+                 {% if accion == 'editar' %}readonly{% endif %} />
+          <div class="invalid-feedback">Ingresa un correo válido</div>
+        </div>
+
+        <!-- Semestre -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Semestre <span class="text-danger">*</span></label>
+          <select name="semestre" class="form-select" required>
+            {% for s in semestres %}
+            <option value="{{ s }}" {{ 'selected' if (estudiante and estudiante.semestre == s) or (form_data and form_data.semestre == s) else '' }}>
+              Semestre {{ s }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Programa -->
+        <div class="col-md-8">
+          <label class="form-label fw-semibold">Programa académico</label>
+          <input type="text" name="programa" class="form-control"
+                 value="{{ estudiante.programa if estudiante else 'Ingeniería de Sistemas' }}"
+                 placeholder="Ingeniería de Sistemas y Computación" />
+        </div>
+
+        <!-- Teléfono -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Teléfono</label>
+          <input type="tel" name="telefono" class="form-control"
+                 value="{{ estudiante.telefono if estudiante else '' }}"
+                 placeholder="+57 300 000 0000"
+                 pattern="^\+?[0-9\s\-]{7,20}$" />
+          <div class="invalid-feedback">Formato de teléfono inválido</div>
+        </div>
+
+        <!-- Ciudad -->
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Ciudad</label>
+          <input type="text" name="ciudad" class="form-control"
+                 value="{{ estudiante.ciudad if estudiante else 'Bogotá' }}"
+                 placeholder="Bogotá" />
+        </div>
+
+        <div class="col-12"><hr class="my-1"/></div>
+
+        <!-- Foto perfil -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Foto de perfil</label>
+          {% if estudiante and estudiante.foto_perfil %}
+          <div class="mb-2">
+            <img src="{{ estudiante.foto_perfil }}" class="rounded-circle" width="60" height="60" style="object-fit:cover" />
+            <span class="text-muted small ms-2">Foto actual (sube una nueva para reemplazar)</span>
+          </div>
+          {% endif %}
+          <input type="file" name="foto_perfil" class="form-control" accept="image/*" id="fotoInput" />
+          <div class="form-text">JPG, PNG, WEBP · máx. 5 MB</div>
+          <img id="fotoPreview" src="" class="mt-2 rounded-circle d-none" width="80" height="80" style="object-fit:cover" />
+        </div>
+
+        <!-- Hoja de vida -->
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Hoja de vida (PDF)</label>
+          {% if estudiante and estudiante.hoja_vida %}
+          <div class="mb-2">
+            <a href="{{ estudiante.hoja_vida }}" target="_blank" class="btn btn-sm btn-outline-success">
+              <i class="bi bi-file-pdf"></i> Ver HV actual
+            </a>
+          </div>
+          {% endif %}
+          <input type="file" name="hoja_vida" class="form-control" accept="application/pdf" />
+          <div class="form-text">Solo PDF · máx. 5 MB</div>
+        </div>
+
+        <!-- Botones -->
+        <div class="col-12 d-flex gap-2 justify-content-end mt-2">
+          <a href="{{ '/estudiantes/' + estudiante.id|string if accion == 'editar' else '/estudiantes/' }}"
+             class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-lg"></i>
+            {{ 'Guardar cambios' if accion == 'editar' else 'Registrar estudiante' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Preview de foto
+document.getElementById('fotoInput').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const preview = document.getElementById('fotoPreview');
+  preview.src = URL.createObjectURL(file);
+  preview.classList.remove('d-none');
+});
+
+// Validación Bootstrap
+(function() {
+  'use strict';
+  const form = document.getElementById('formEstudiante');
+  form.addEventListener('submit', function(e) {
+    if (!form.checkValidity()) {
+      e.preventDefault(); e.stopPropagation();
+    }
+    form.classList.add('was-validated');
+  });
+})();
+</script>
+{% endblock %}

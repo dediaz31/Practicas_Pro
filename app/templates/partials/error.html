@@ -1,0 +1,9 @@
+{% extends "partials/base.html" %}
+{% block title %}Error {{ codigo }} — PrácticasPro{% endblock %}
+{% block content %}
+<div class="text-center py-5">
+  <div class="display-1 text-muted">{{ codigo }}</div>
+  <h3 class="mt-3">{{ mensaje }}</h3>
+  <a href="/" class="btn btn-primary mt-3"><i class="bi bi-house"></i> Volver al inicio</a>
+</div>
+{% endblock %}

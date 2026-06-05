@@ -1,0 +1,58 @@
+{% extends "partials/base.html" %}
+{% block title %}Nueva Postulación — PrácticasPro{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb"><li class="breadcrumb-item"><a href="/postulaciones/">Postulaciones</a></li>
+    <li class="breadcrumb-item active">Nueva</li></ol>
+  </nav>
+  <h4 class="fw-bold">Nueva Postulación</h4>
+</div>
+
+<div class="card">
+  <div class="card-body p-4">
+    <form method="post" action="/postulaciones/nueva" id="formPost" novalidate>
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Estudiante *</label>
+          <select name="estudiante_id" class="form-select" required>
+            <option value="">— Selecciona un estudiante —</option>
+            {% for e in estudiantes %}
+            <option value="{{ e.id }}" {{ 'selected' if pre_estudiante == e.id else '' }}>
+              {{ e.nombre }} (Sem. {{ e.semestre }})
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Vacante *</label>
+          <select name="vacante_id" class="form-select" required>
+            <option value="">— Selecciona una vacante —</option>
+            {% for v in vacantes %}
+            <option value="{{ v.id }}" {{ 'selected' if pre_vacante == v.id else '' }}>
+              {{ v.titulo }} — {{ v.empresa.nombre if v.empresa else '' }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Carta de motivación</label>
+          <textarea name="carta_motivacion" class="form-control" rows="5" maxlength="2000"
+                    placeholder="¿Por qué te interesa esta práctica? ¿Qué valor aportarías?..."></textarea>
+          <div class="form-text">Máx. 2000 caracteres</div>
+        </div>
+        <div class="col-12 d-flex gap-2 justify-content-end">
+          <a href="/postulaciones/" class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> Enviar Postulación</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function(){const f=document.getElementById('formPost');f.addEventListener('submit',e=>{if(!f.checkValidity()){e.preventDefault();e.stopPropagation();}f.classList.add('was-validated');});})();
+</script>
+{% endblock %}

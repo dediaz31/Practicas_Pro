@@ -1,0 +1,96 @@
+{% extends "partials/base.html" %}
+{% block title %}{{ 'Editar' if accion=='editar' else 'Nueva' }} Empresa{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb"><li class="breadcrumb-item"><a href="/empresas/">Empresas</a></li>
+    <li class="breadcrumb-item active">{{ 'Editar' if accion=='editar' else 'Nueva' }}</li></ol>
+  </nav>
+  <h4 class="fw-bold">{{ 'Editar Empresa' if accion=='editar' else 'Registrar Nueva Empresa' }}</h4>
+</div>
+
+<div class="card">
+  <div class="card-body p-4">
+    <form method="post"
+          action="{{ '/empresas/' + empresa.id|string + '/editar' if accion=='editar' else '/empresas/nueva' }}"
+          enctype="multipart/form-data" id="formEmpresa" novalidate>
+      <div class="row g-3">
+        <div class="col-md-8">
+          <label class="form-label fw-semibold">Nombre de la empresa *</label>
+          <input type="text" name="nombre" class="form-control" required
+                 value="{{ empresa.nombre if empresa else '' }}" placeholder="Bancolombia S.A." />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">NIT *</label>
+          <input type="text" name="nit" class="form-control" required
+                 value="{{ empresa.nit if empresa else '' }}" placeholder="890.903.938-8"
+                 {% if accion=='editar' %}readonly{% endif %} />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Sector *</label>
+          <select name="sector" class="form-select" required>
+            {% for s in sectores %}
+            <option value="{{ s }}" {{ 'selected' if empresa and empresa.sector.value == s else '' }}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Ciudad *</label>
+          <input type="text" name="ciudad" class="form-control" required
+                 value="{{ empresa.ciudad if empresa else '' }}" placeholder="Bogotá" />
+        </div>
+        <div class="col-md-4">
+          <label class="form-label fw-semibold">Sitio web</label>
+          <input type="url" name="sitio_web" class="form-control"
+                 value="{{ empresa.sitio_web if empresa else '' }}" placeholder="https://www.empresa.com" />
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Dirección</label>
+          <input type="text" name="direccion" class="form-control"
+                 value="{{ empresa.direccion if empresa else '' }}" placeholder="Cra 48 #26-85, Medellín" />
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Descripción</label>
+          <textarea name="descripcion" class="form-control" rows="3"
+                    placeholder="Descripción de la empresa...">{{ empresa.descripcion if empresa else '' }}</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Nombre del contacto</label>
+          <input type="text" name="contacto_nombre" class="form-control"
+                 value="{{ empresa.contacto_nombre if empresa else '' }}" placeholder="Andrea López" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Email del contacto</label>
+          <input type="email" name="contacto_email" class="form-control"
+                 value="{{ empresa.contacto_email if empresa else '' }}" placeholder="rrhh@empresa.com" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Logo de la empresa</label>
+          {% if empresa and empresa.logo %}
+          <div class="mb-2"><img src="{{ empresa.logo }}" width="60" class="rounded-3" /></div>
+          {% endif %}
+          <input type="file" name="logo" class="form-control" accept="image/*" />
+          <div class="form-text">PNG, JPG · máx. 5 MB</div>
+        </div>
+        <div class="col-12 d-flex gap-2 justify-content-end">
+          <a href="{{ '/empresas/' + empresa.id|string if accion=='editar' else '/empresas/' }}"
+             class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary">
+            {{ 'Guardar cambios' if accion=='editar' else 'Registrar empresa' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function(){
+  const f = document.getElementById('formEmpresa');
+  f.addEventListener('submit', e => { if(!f.checkValidity()){e.preventDefault();e.stopPropagation();} f.classList.add('was-validated'); });
+})();
+</script>
+{% endblock %}

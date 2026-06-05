@@ -1,0 +1,66 @@
+{% extends "partials/base.html" %}
+{% block title %}{{ empresa.nombre }} — PrácticasPro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-start mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-1"><li class="breadcrumb-item"><a href="/empresas/">Empresas</a></li>
+    <li class="breadcrumb-item active">{{ empresa.nombre }}</li></ol>
+  </nav>
+  <div class="d-flex gap-2">
+    <a href="/empresas/{{ empresa.id }}/editar" class="btn btn-outline-primary btn-sm"><i class="bi bi-pencil"></i></a>
+    <a href="/vacantes/nueva/form?empresa_id={{ empresa.id }}" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> Nueva Vacante</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card p-4 text-center">
+      {% if empresa.logo %}
+      <img src="{{ empresa.logo }}" class="mx-auto d-block mb-3 rounded-3" width="100" style="object-fit:contain" />
+      {% else %}
+      <div class="display-3 mb-3">🏢</div>
+      {% endif %}
+      <h5 class="fw-bold">{{ empresa.nombre }}</h5>
+      <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ empresa.sector.value }}</span>
+      <hr />
+      <ul class="list-unstyled text-start small">
+        <li class="mb-1"><i class="bi bi-hash text-primary me-1"></i>NIT: {{ empresa.nit }}</li>
+        <li class="mb-1"><i class="bi bi-geo-alt text-primary me-1"></i>{{ empresa.ciudad }}</li>
+        {% if empresa.sitio_web %}<li class="mb-1"><i class="bi bi-globe text-primary me-1"></i><a href="{{ empresa.sitio_web }}" target="_blank">Sitio web</a></li>{% endif %}
+        {% if empresa.contacto_nombre %}<li class="mb-1"><i class="bi bi-person text-primary me-1"></i>{{ empresa.contacto_nombre }}</li>{% endif %}
+        {% if empresa.contacto_email %}<li class="mb-1"><i class="bi bi-envelope text-primary me-1"></i>{{ empresa.contacto_email }}</li>{% endif %}
+      </ul>
+      {% if empresa.descripcion %}<p class="text-muted small">{{ empresa.descripcion }}</p>{% endif %}
+    </div>
+  </div>
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+        <h6 class="fw-bold mb-0">Vacantes ({{ empresa.vacantes | length }})</h6>
+        <a href="/vacantes/nueva/form" class="btn btn-sm btn-primary"><i class="bi bi-plus"></i></a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 small">
+          <thead class="table-light">
+            <tr><th>Título</th><th>Modalidad</th><th>Salario</th><th>Cupos</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for v in empresa.vacantes %}
+            <tr>
+              <td><a href="/vacantes/{{ v.id }}" class="fw-semibold text-decoration-none">{{ v.titulo }}</a></td>
+              <td><span class="badge bg-info bg-opacity-10 text-info">{{ v.modalidad.value }}</span></td>
+              <td>{% if v.salario %}${{ "{:,.0f}".format(v.salario) }}{% else %}<span class="text-muted">—</span>{% endif %}</td>
+              <td>{{ v.cupos }}</td>
+              <td><a href="/vacantes/{{ v.id }}" class="btn btn-sm btn-outline-secondary py-0">Ver</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-3">Sin vacantes aún</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

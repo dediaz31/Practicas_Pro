@@ -1,0 +1,66 @@
+{% extends "partials/base.html" %}
+{% block title %}{{ vacante.titulo }} — PrácticasPro{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between mb-4">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb mb-1"><li class="breadcrumb-item"><a href="/vacantes/">Vacantes</a></li>
+    <li class="breadcrumb-item active">{{ vacante.titulo }}</li></ol>
+  </nav>
+  <div class="d-flex gap-2">
+    <a href="/vacantes/{{ vacante.id }}/editar" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil"></i></a>
+    <a href="/postulaciones/nueva/form?vacante_id={{ vacante.id }}" class="btn btn-success btn-sm"><i class="bi bi-send"></i> Postular</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-8">
+    <div class="card p-4 mb-3">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="badge bg-primary">{{ vacante.modalidad.value }}</span>
+        <span class="badge bg-secondary">{{ vacante.duracion_meses }} meses</span>
+        {% if not vacante.activa %}<span class="badge bg-danger">Cerrada</span>{% endif %}
+      </div>
+      <h4 class="fw-bold">{{ vacante.titulo }}</h4>
+      {% if vacante.empresa %}
+      <p class="text-muted"><i class="bi bi-building"></i> <a href="/empresas/{{ vacante.empresa.id }}">{{ vacante.empresa.nombre }}</a> · {{ vacante.empresa.ciudad }}</p>
+      {% endif %}
+      {% if vacante.salario %}
+      <div class="alert alert-success py-2"><i class="bi bi-currency-dollar"></i> <strong>Salario:</strong> ${{ "{:,.0f}".format(vacante.salario) }} / mes</div>
+      {% endif %}
+      <h6 class="fw-bold mt-3">Descripción del cargo</h6>
+      <p>{{ vacante.descripcion }}</p>
+      {% if vacante.requisitos %}
+      <h6 class="fw-bold mt-3">Requisitos y habilidades</h6>
+      <ul>{% for req in vacante.requisitos.split(',') %}<li>{{ req.strip() }}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card p-3 mb-3">
+      <h6 class="fw-bold">Resumen</h6>
+      <ul class="list-unstyled small">
+        <li class="mb-1">👥 <strong>Cupos:</strong> {{ vacante.cupos }}</li>
+        <li class="mb-1">📅 <strong>Publicada:</strong> {{ vacante.created_at.strftime('%d/%m/%Y') }}</li>
+        <li class="mb-1">🔁 <strong>Postulaciones:</strong> {{ vacante.postulaciones | length }}</li>
+      </ul>
+      <a href="/postulaciones/nueva/form?vacante_id={{ vacante.id }}" class="btn btn-primary w-100 mt-2">
+        <i class="bi bi-send"></i> Postularme ahora
+      </a>
+    </div>
+    <div class="card">
+      <div class="card-header bg-white py-3"><h6 class="fw-bold mb-0">Postulantes ({{ vacante.postulaciones|length }})</h6></div>
+      <ul class="list-group list-group-flush small">
+        {% for p in vacante.postulaciones %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          {{ p.estudiante.nombre if p.estudiante else '—' }}
+          <span class="badge bg-{{ 'success' if p.estado.value=='Aceptado' else 'danger' if p.estado.value=='Rechazado' else 'secondary' }}">{{ p.estado.value }}</span>
+        </li>
+        {% else %}
+        <li class="list-group-item text-muted text-center py-3">Sin postulantes aún</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

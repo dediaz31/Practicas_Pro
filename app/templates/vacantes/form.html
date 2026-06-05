@@ -1,0 +1,84 @@
+{% extends "partials/base.html" %}
+{% block title %}{{ 'Editar' if accion=='editar' else 'Nueva' }} Vacante{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb"><li class="breadcrumb-item"><a href="/vacantes/">Vacantes</a></li>
+    <li class="breadcrumb-item active">{{ 'Editar' if accion=='editar' else 'Nueva' }}</li></ol>
+  </nav>
+  <h4 class="fw-bold">{{ 'Editar Vacante' if accion=='editar' else 'Publicar Nueva Vacante' }}</h4>
+</div>
+<div class="card">
+  <div class="card-body p-4">
+    <form method="post"
+          action="{{ '/vacantes/' + vacante.id|string + '/editar' if accion=='editar' else '/vacantes/nueva' }}"
+          id="formVacante" novalidate>
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold">Título de la vacante *</label>
+          <input type="text" name="titulo" class="form-control" required minlength="5"
+                 value="{{ vacante.titulo if vacante else '' }}"
+                 placeholder="Practicante de Desarrollo Backend" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Empresa *</label>
+          <select name="empresa_id" class="form-select" required {% if accion=='editar' %}disabled{% endif %}>
+            {% for e in empresas %}
+            <option value="{{ e.id }}" {{ 'selected' if vacante and vacante.empresa_id == e.id else '' }}>{{ e.nombre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Modalidad *</label>
+          <select name="modalidad" class="form-select" required>
+            {% for m in modalidades %}
+            <option value="{{ m }}" {{ 'selected' if vacante and vacante.modalidad.value == m else '' }}>{{ m }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Salario mensual</label>
+          <div class="input-group">
+            <span class="input-group-text">$</span>
+            <input type="number" name="salario" class="form-control" min="0" step="50000"
+                   value="{{ vacante.salario if vacante else '' }}" placeholder="1500000" />
+          </div>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Duración (meses)</label>
+          <input type="number" name="duracion_meses" class="form-control" min="1" max="24"
+                 value="{{ vacante.duracion_meses if vacante else 6 }}" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Cupos disponibles</label>
+          <input type="number" name="cupos" class="form-control" min="1" max="50"
+                 value="{{ vacante.cupos if vacante else 1 }}" />
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Descripción del cargo *</label>
+          <textarea name="descripcion" class="form-control" rows="4" required minlength="20"
+                    placeholder="Describe las responsabilidades y actividades del practicante...">{{ vacante.descripcion if vacante else '' }}</textarea>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Requisitos y habilidades</label>
+          <textarea name="requisitos" class="form-control" rows="3"
+                    placeholder="Python, FastAPI, Git, Trabajo en equipo...">{{ vacante.requisitos if vacante else '' }}</textarea>
+        </div>
+        <div class="col-12 d-flex gap-2 justify-content-end">
+          <a href="{{ '/vacantes/' + vacante.id|string if accion=='editar' else '/vacantes/' }}"
+             class="btn btn-outline-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary">
+            {{ 'Guardar' if accion=='editar' else 'Publicar vacante' }}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+(function(){const f=document.getElementById('formVacante');f.addEventListener('submit',e=>{if(!f.checkValidity()){e.preventDefault();e.stopPropagation();}f.classList.add('was-validated');});})();
+</script>
+{% endblock %}

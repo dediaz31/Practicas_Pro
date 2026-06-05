@@ -1,0 +1,108 @@
+{% extends "partials/base.html" %}
+{% block title %}Dashboard — PrácticasPro{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex align-items-center justify-content-between">
+  <div>
+    <h4 class="fw-bold mb-0">Dashboard Analítico</h4>
+    <p class="text-muted mb-0">Estadísticas del sistema de prácticas</p>
+  </div>
+  <a href="/api/stats" target="_blank" class="btn btn-outline-secondary btn-sm">
+    <i class="bi bi-download"></i> JSON
+  </a>
+</div>
+
+<!-- KPIs -->
+<div class="row g-3 mb-4">
+  {% for icon, label, value, color in [
+    ('people-fill','Estudiantes', total_estudiantes, 'primary'),
+    ('building-fill','Empresas', total_empresas, 'purple'),
+    ('briefcase-fill','Vacantes', total_vacantes, 'success'),
+    ('file-earmark-check-fill','Postulaciones', total_postulaciones, 'warning'),
+  ] %}
+  <div class="col-6 col-lg-3">
+    <div class="card p-3 text-center">
+      <i class="bi bi-{{ icon }} fs-1 text-{{ color if color != 'purple' else 'primary' }}"></i>
+      <div class="fs-2 fw-bold mt-1">{{ value }}</div>
+      <div class="text-muted small">{{ label }}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Gráficas Row 1 -->
+<div class="row g-3 mb-3">
+  <div class="col-md-6">
+    <div class="card p-3">
+      <h6 class="fw-bold mb-3"><i class="bi bi-pie-chart text-primary"></i> Postulaciones por Estado</h6>
+      <canvas id="chartEstados" height="250"></canvas>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card p-3">
+      <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart text-success"></i> Vacantes por Modalidad</h6>
+      <canvas id="chartModalidad" height="250"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Gráfica Row 2 -->
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card p-3">
+      <h6 class="fw-bold mb-3"><i class="bi bi-trophy text-warning"></i> Top Empresas con más Postulaciones</h6>
+      <canvas id="chartEmpresas" height="120"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const COLORS = ['#2563eb','#7c3aed','#059669','#d97706','#dc2626','#0891b2','#be185d'];
+
+// Doughnut — estados
+new Chart(document.getElementById('chartEstados'), {
+  type: 'doughnut',
+  data: {
+    labels: {{ estados_labels | safe }},
+    datasets: [{ data: {{ estados_data | safe }}, backgroundColor: COLORS, borderWidth: 2 }]
+  },
+  options: { plugins: { legend: { position: 'bottom' } }, cutout: '60%' }
+});
+
+// Bar — modalidad
+new Chart(document.getElementById('chartModalidad'), {
+  type: 'bar',
+  data: {
+    labels: {{ modalidad_labels | safe }},
+    datasets: [{
+      label: 'Vacantes',
+      data: {{ modalidad_data | safe }},
+      backgroundColor: COLORS,
+      borderRadius: 8,
+    }]
+  },
+  options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+});
+
+// Horizontal bar — top empresas
+new Chart(document.getElementById('chartEmpresas'), {
+  type: 'bar',
+  data: {
+    labels: {{ top_empresas_labels | safe }},
+    datasets: [{
+      label: 'Postulaciones',
+      data: {{ top_empresas_data | safe }},
+      backgroundColor: '#2563eb',
+      borderRadius: 6,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    plugins: { legend: { display: false } },
+    scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+  }
+});
+</script>
+{% endblock %}

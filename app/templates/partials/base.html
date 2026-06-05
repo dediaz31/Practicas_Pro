@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}PrácticasPro{% endblock %}</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --pp-primary:   #2563eb;
+      --pp-secondary: #7c3aed;
+      --pp-success:   #059669;
+      --pp-warning:   #d97706;
+      --pp-danger:    #dc2626;
+      --pp-dark:      #0f172a;
+      --pp-bg:        #f8fafc;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--pp-bg);
+      color: #1e293b;
+    }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 250px;
+      min-height: 100vh;
+      background: var(--pp-dark);
+      position: fixed;
+      top: 0; left: 0;
+      z-index: 1000;
+      transition: transform .25s ease;
+    }
+    #sidebar .brand {
+      padding: 1.5rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    #sidebar .brand span { color: #60a5fa; font-weight: 700; font-size: 1.2rem; }
+    #sidebar .nav-link {
+      color: #94a3b8;
+      padding: .65rem 1.25rem;
+      border-radius: .5rem;
+      margin: .1rem .5rem;
+      transition: all .2s;
+      font-size: .9rem;
+    }
+    #sidebar .nav-link:hover,
+    #sidebar .nav-link.active {
+      background: rgba(96,165,250,.12);
+      color: #60a5fa;
+    }
+    #sidebar .nav-link i { width: 1.4rem; }
+
+    /* ── Main content ── */
+    #main-content {
+      margin-left: 250px;
+      padding: 1.5rem 2rem;
+      min-height: 100vh;
+    }
+
+    /* ── Cards ── */
+    .card { border: none; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+    .card-header { border-radius: 1rem 1rem 0 0 !important; font-weight: 600; }
+
+    /* ── Stat cards ── */
+    .stat-card { border-left: 4px solid var(--pp-primary); transition: transform .2s; }
+    .stat-card:hover { transform: translateY(-2px); }
+
+    /* ── Badges de estado ── */
+    .badge-pendiente  { background:#fef3c7; color:#92400e; }
+    .badge-revision   { background:#dbeafe; color:#1e40af; }
+    .badge-entrevista { background:#ede9fe; color:#5b21b6; }
+    .badge-aceptado   { background:#d1fae5; color:#065f46; }
+    .badge-rechazado  { background:#fee2e2; color:#991b1b; }
+
+    /* ── Búsqueda ── */
+    .search-bar { max-width: 400px; }
+
+    /* ── Avatar placeholder ── */
+    .avatar-circle {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--pp-primary), var(--pp-secondary));
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 1.3rem;
+    }
+
+    /* ── Responsive ── */
+    @media(max-width: 768px) {
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.show { transform: translateX(0); }
+      #main-content { margin-left: 0; padding: 1rem; }
+    }
+  </style>
+
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ══════════ SIDEBAR ══════════ -->
+<nav id="sidebar">
+  <div class="brand d-flex align-items-center gap-2">
+    <i class="bi bi-briefcase-fill text-primary fs-4"></i>
+    <span>PrácticasPro</span>
+  </div>
+  <ul class="nav flex-column mt-2 px-1">
+    <li class="nav-item">
+      <a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}">
+        <i class="bi bi-speedometer2"></i> Inicio
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/dashboard" class="nav-link {% if '/dashboard' in request.url.path %}active{% endif %}">
+        <i class="bi bi-bar-chart-line"></i> Dashboard
+      </a>
+    </li>
+    <hr class="border-secondary mx-3 my-1" />
+    <li class="nav-item">
+      <a href="/estudiantes/" class="nav-link {% if '/estudiantes' in request.url.path %}active{% endif %}">
+        <i class="bi bi-people"></i> Estudiantes
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/empresas/" class="nav-link {% if '/empresas' in request.url.path %}active{% endif %}">
+        <i class="bi bi-building"></i> Empresas
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/vacantes/" class="nav-link {% if '/vacantes' in request.url.path %}active{% endif %}">
+        <i class="bi bi-briefcase"></i> Vacantes
+      </a>
+    </li>
+    <li class="nav-item">
+      <a href="/postulaciones/" class="nav-link {% if '/postulaciones' in request.url.path %}active{% endif %}">
+        <i class="bi bi-file-earmark-check"></i> Postulaciones
+      </a>
+    </li>
+    <hr class="border-secondary mx-3 my-1" />
+    <li class="nav-item">
+      <a href="/api/docs" target="_blank" class="nav-link">
+        <i class="bi bi-code-slash"></i> API Docs
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<!-- ══════════ TOPBAR ══════════ -->
+<div id="main-content">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <button class="btn btn-sm btn-outline-secondary d-md-none" onclick="document.getElementById('sidebar').classList.toggle('show')">
+      <i class="bi bi-list fs-5"></i>
+    </button>
+
+    <!-- Búsqueda global -->
+    <form class="d-flex search-bar ms-auto me-3" action="/vacantes/" method="get">
+      <div class="input-group">
+        <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="search" name="busqueda" class="form-control border-start-0 ps-0"
+               placeholder="Buscar vacantes..." autocomplete="off" />
+      </div>
+    </form>
+
+    <a href="/postulaciones/nueva/form" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg"></i> Nueva Postulación
+    </a>
+  </div>
+
+  <!-- Flash messages -->
+  {% if mensajes %}
+    {% for tipo, msg in mensajes %}
+    <div class="alert alert-{{ tipo }} alert-dismissible fade show" role="alert">
+      {{ msg }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  {% endif %}
+
+  {% block content %}{% endblock %}
+</div><!-- /main-content -->
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>
