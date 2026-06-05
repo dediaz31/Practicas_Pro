@@ -76,5 +76,5 @@ Para Render, asegúrate de configurar:
 
 ## Autor
 
-**Deiby Alejandro Hernández**  
+**Deiby Diaz Chinome**  
 Proyecto Integrador Ingeniería WEB — 2026-1
