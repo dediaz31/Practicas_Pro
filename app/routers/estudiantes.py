@@ -87,30 +87,55 @@ async def crear_estudiante(
                           "programa": programa, "telefono": telefono, "ciudad": ciudad},
         }, status_code=422)
 
-    datos = EstudianteCreate(
-        nombre=nombre, correo=correo, semestre=semestre,
-        programa=programa, telefono=telefono or None, ciudad=ciudad,
-    )
-    estudiante = EstudianteRepository.crear(db, datos)
+    try:
+        datos = EstudianteCreate(
+            nombre=nombre, correo=correo, semestre=semestre,
+            programa=programa, telefono=telefono or None, ciudad=ciudad,
+        )
+        estudiante = EstudianteRepository.crear(db, datos)
 
-    # Subida multimedia
-    foto_url = hv_url = None
-    if foto_perfil and foto_perfil.filename:
-        try:
-            foto_url = await subir_imagen(foto_perfil, "practicas_pro/fotos")
-        except HTTPException as e:
-            errores.append(f"Foto: {e.detail}")
+        # Subida multimedia
+        foto_url = hv_url = None
+        if foto_perfil and foto_perfil.filename:
+            try:
+                foto_url = await subir_imagen(foto_perfil, "practicas_pro/fotos")
+            except Exception as e:
+                errores.append(f"Foto: {str(e)}")
 
-    if hoja_vida and hoja_vida.filename:
-        try:
-            hv_url = await subir_pdf(hoja_vida, "practicas_pro/hojas_vida")
-        except HTTPException as e:
-            errores.append(f"HV: {e.detail}")
+        if hoja_vida and hoja_vida.filename:
+            try:
+                hv_url = await subir_pdf(hoja_vida, "practicas_pro/hojas_vida")
+            except Exception as e:
+                errores.append(f"HV: {str(e)}")
 
-    if foto_url or hv_url:
-        EstudianteRepository.actualizar_multimedia(db, estudiante.id, foto_url, hv_url)
+        if foto_url or hv_url:
+            try:
+                EstudianteRepository.actualizar_multimedia(db, estudiante.id, foto_url, hv_url)
+            except Exception as e:
+                errores.append(f"Error al guardar multimedia: {str(e)}")
+                # El estudiante se creó pero sin multimedia
+        
+        if errores:
+            # Si hay errores, mostrar en la página de detalle
+            return templates.TemplateResponse("estudiantes/detalle.html", {
+                "request": request,
+                "estudiante": estudiante,
+                "advertencias": errores,
+            }, status_code=200)
 
-    return RedirectResponse(f"/estudiantes/{estudiante.id}", status_code=303)
+        return RedirectResponse(f"/estudiantes/{estudiante.id}", status_code=303)
+    
+    except Exception as e:
+        db.rollback()
+        errores.append(f"Error critico: {str(e)}")
+        return templates.TemplateResponse("estudiantes/form.html", {
+            "request": request,
+            "errores": errores,
+            "accion": "crear",
+            "semestres": list(range(1, 11)),
+            "form_data": {"nombre": nombre, "correo": correo, "semestre": semestre,
+                          "programa": programa, "telefono": telefono, "ciudad": ciudad},
+        }, status_code=500)
 
 
 # ── Formulario Editar ─────────────────────────────────
@@ -140,21 +165,38 @@ async def editar_estudiante(
     hoja_vida:   Optional[UploadFile] = File(None),
     db: Session = Depends(get_db),
 ):
-    datos = EstudianteUpdate(
-        nombre=nombre, semestre=semestre, programa=programa,
-        telefono=telefono or None, ciudad=ciudad,
-    )
-    EstudianteRepository.actualizar(db, id, datos)
+    errores = []
+    try:
+        datos = EstudianteUpdate(
+            nombre=nombre, semestre=semestre, programa=programa,
+            telefono=telefono or None, ciudad=ciudad,
+        )
+        EstudianteRepository.actualizar(db, id, datos)
 
-    foto_url = hv_url = None
-    if foto_perfil and foto_perfil.filename:
-        foto_url = await subir_imagen(foto_perfil, "practicas_pro/fotos")
-    if hoja_vida and hoja_vida.filename:
-        hv_url = await subir_pdf(hoja_vida, "practicas_pro/hojas_vida")
-    if foto_url or hv_url:
-        EstudianteRepository.actualizar_multimedia(db, id, foto_url, hv_url)
+        foto_url = hv_url = None
+        if foto_perfil and foto_perfil.filename:
+            try:
+                foto_url = await subir_imagen(foto_perfil, "practicas_pro/fotos")
+            except Exception as e:
+                errores.append(f"Foto: {str(e)}")
+        
+        if hoja_vida and hoja_vida.filename:
+            try:
+                hv_url = await subir_pdf(hoja_vida, "practicas_pro/hojas_vida")
+            except Exception as e:
+                errores.append(f"HV: {str(e)}")
+        
+        if foto_url or hv_url:
+            try:
+                EstudianteRepository.actualizar_multimedia(db, id, foto_url, hv_url)
+            except Exception as e:
+                errores.append(f"Error al guardar multimedia: {str(e)}")
 
-    return RedirectResponse(f"/estudiantes/{id}", status_code=303)
+        return RedirectResponse(f"/estudiantes/{id}", status_code=303)
+    
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ── Eliminar ──────────────────────────────────────────

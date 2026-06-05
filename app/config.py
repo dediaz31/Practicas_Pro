@@ -9,7 +9,7 @@ from functools import lru_cache
 class Settings(BaseSettings):
     APP_NAME: str = "PrácticasPro"
     DEBUG: bool = False
-    DATABASE_URL: str
+    DATABASE_URL: str = "sqlite:///./local.db"
     SECRET_KEY: str = "changeme"
 
     # Cloudinary
